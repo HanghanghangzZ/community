@@ -16,6 +16,8 @@
 
 [okhttp 文档](https://square.github.io/okhttp/)
 
+[springboot整合mybatis 文档](https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/)
+
 ## 工具
 git
 github
@@ -23,3 +25,17 @@ github
 ## 功能
 ### 使用GitHub账号登录
 ![img.png](img.png)
+
+## MySQL数据库
+```sql
+create table user
+(
+	ID int auto_increment
+		primary key,
+	account_id varchar(100) null,
+	name varchar(50) null,
+	token char(36) null,
+	gmt_create bigint null,
+	gmt_modified bigint null
+);
+```

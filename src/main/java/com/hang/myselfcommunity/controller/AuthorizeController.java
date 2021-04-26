@@ -2,6 +2,8 @@ package com.hang.myselfcommunity.controller;
 
 import com.hang.myselfcommunity.dto.AccessTokenDTO;
 import com.hang.myselfcommunity.dto.GitHubUser;
+import com.hang.myselfcommunity.mapper.UserMapper;
+import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.provider.GitHubProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 @Controller
 public class AuthorizeController {
@@ -18,6 +21,12 @@ public class AuthorizeController {
     @Autowired
     public void setGitHubProvider(GitHubProvider gitHubProvider) {
         this.gitHubProvider = gitHubProvider;
+    }
+
+    private UserMapper userMapper;
+    @Autowired
+    public void setUserMapper(UserMapper userMapper) {
+        this.userMapper = userMapper;
     }
 
     /* 在Spring的IOC容器启动时会将配置文件中的键值对存到一个map中，当真正要使用的时候，通过下面这个注解去获取，设置到我们的属性中 */
@@ -48,11 +57,18 @@ public class AuthorizeController {
         accessTokenDTO.setState(state);
         accessTokenDTO.setRedirect_uri(redirectUri);
         String accessToken = gitHubProvider.getAccessToken(accessTokenDTO);
-        GitHubUser user = gitHubProvider.getUser(accessToken);
-        System.out.println(user);
-        if (user != null) {
+        GitHubUser gitHubUser = gitHubProvider.getUser(accessToken);
+        System.out.println(gitHubUser);
+        if (gitHubUser != null) {
+            User user = new User();
+            user.setToken(UUID.randomUUID().toString());
+            user.setName(gitHubUser.getLogin());
+            user.setAccount_id(String.valueOf(gitHubUser.getId()));
+            user.setGmt_create(System.currentTimeMillis());
+            user.setGmt_modified(user.getGmt_create());
+            userMapper.insertUser(user);
             /* 登录成功，保存session和cookie */
-            request.getSession().setAttribute("user", user);
+            request.getSession().setAttribute("user", gitHubUser);
             return "redirect:/";
         } else {
             /* 登录失败，重新登录 */
