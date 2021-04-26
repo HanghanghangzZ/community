@@ -18,6 +18,7 @@
 
 [springboot整合mybatis 文档](https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/)
 
+[flyway 文档 一个数据库迁移工具](https://flywaydb.org/documentation/getstarted/firststeps/maven)
 ## 工具
 git
 github
@@ -25,6 +26,12 @@ github
 ## 功能
 ### 使用GitHub账号登录
 ![img.png](img.png)
+
+### 使用flyway进行数据库的迁移
+执行以下命令会自动执行数据库脚本
+```shell
+mvn flyway:migrate
+```
 
 ## MySQL数据库
 ```sql
@@ -38,4 +45,6 @@ create table user
 	gmt_create bigint null,
 	gmt_modified bigint null
 );
+alter table user
+    add bio varchar(256) null;
 ```
