@@ -15,4 +15,7 @@ public interface UserMapper {
     /* 非引用类型的参数前要加上@Param */
     @Select("SELECT * FROM community.user WHERE token=#{token}")
     User findByToken(@Param("token") String token);
+
+    @Select("SELECT * FROM community.user WHERE id=#{id}")
+    User findById(@Param("id") Integer creator);
 }
