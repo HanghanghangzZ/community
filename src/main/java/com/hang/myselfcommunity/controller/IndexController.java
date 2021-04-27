@@ -1,4 +1,4 @@
- package com.hang.myselfcommunity.controller;
+package com.hang.myselfcommunity.controller;
 
 import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.User;
@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 public class IndexController {
 
     private UserMapper userMapper;
+
     @Autowired
     public void setUserMapper(UserMapper userMapper) {
         this.userMapper = userMapper;
@@ -25,15 +26,18 @@ public class IndexController {
         /* 利用cookie来保持登录状态 */
         /* 这只适用于小用户的范围，当用户量较大时，这样子根据token进行查询的方式速度较为缓慢 */
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if ("token".equals(cookie.getName())) {
-                String token = cookie.getValue();
-                User user = userMapper.findByToken(token);
-                if (user != null) {
-                    /* 登录成功，保存session */
-                    request.getSession().setAttribute("user", user);
+        /* 防止用户把cookie全部删除导致空指针异常 */
+        if (cookies != null && cookies.length != 0) {
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    String token = cookie.getValue();
+                    User user = userMapper.findByToken(token);
+                    if (user != null) {
+                        /* 登录成功，保存session */
+                        request.getSession().setAttribute("user", user);
+                    }
+                    break;
                 }
-                break;
             }
         }
         return "index";

@@ -1,16 +1,13 @@
 package com.hang.myselfcommunity.controller;
 
-import com.hang.myselfcommunity.dto.Publish;
 import com.hang.myselfcommunity.mapper.QuestionMapper;
 import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.Question;
 import com.hang.myselfcommunity.model.User;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -66,11 +63,14 @@ public class PublishController {
 
         User user = null;
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if ("token".equals(cookie.getName())) {
-                String token = cookie.getValue();
-                user = userMapper.findByToken(token);
-                break;
+        /* 防止用户把cookie全部删除导致空指针异常 */
+        if (cookies != null && cookies.length != 0) {
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    String token = cookie.getValue();
+                    user = userMapper.findByToken(token);
+                    break;
+                }
             }
         }
         if (user == null) {
