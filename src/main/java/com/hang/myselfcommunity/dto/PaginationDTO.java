@@ -16,7 +16,7 @@ public class PaginationDTO {
     private List<Integer> pages = new LinkedList<>();
     private Integer totalPage;
 
-    public void setPaginationDTO(Integer totalPage, Integer page, Integer size) {
+    public void setPaginationDTO(Integer totalPage, Integer page) {
         this.page = page;
         this.totalPage = totalPage;
 

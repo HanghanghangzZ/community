@@ -1,7 +1,6 @@
 package com.hang.myselfcommunity.controller;
 
 import com.hang.myselfcommunity.mapper.QuestionMapper;
-import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.Question;
 import com.hang.myselfcommunity.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
@@ -22,13 +20,6 @@ public class PublishController {
     @Autowired
     public void setQuestionMapper(QuestionMapper questionMapper) {
         this.questionMapper = questionMapper;
-    }
-
-    private UserMapper userMapper;
-
-    @Autowired
-    public void setUserMapper(UserMapper userMapper) {
-        this.userMapper = userMapper;
     }
 
     /* get渲染页面， post执行请求 */
@@ -61,18 +52,7 @@ public class PublishController {
             return "publish";
         }
 
-        User user = null;
-        Cookie[] cookies = request.getCookies();
-        /* 防止用户把cookie全部删除导致空指针异常 */
-        if (cookies != null && cookies.length != 0) {
-            for (Cookie cookie : cookies) {
-                if ("token".equals(cookie.getName())) {
-                    String token = cookie.getValue();
-                    user = userMapper.findByToken(token);
-                    break;
-                }
-            }
-        }
+        User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
             model.addAttribute("error", "用户未登录");
             return "publish";

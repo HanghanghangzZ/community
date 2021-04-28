@@ -34,27 +34,10 @@ public class IndexController {
     }
 
     @GetMapping("/")
-    public String index(HttpServletRequest request,
-                        Model model,
+    public String index(Model model,
                         @RequestParam(value = "page", defaultValue = "1") Integer page,
                         @RequestParam(value = "size", defaultValue = "5") Integer size) {
-        /* 利用cookie来保持登录状态 */
-        /* 这只适用于小用户的范围，当用户量较大时，这样子根据token进行查询的方式速度较为缓慢 */
-        Cookie[] cookies = request.getCookies();
-        /* 防止用户把cookie全部删除导致空指针异常 */
-        if (cookies != null && cookies.length != 0) {
-            for (Cookie cookie : cookies) {
-                if ("token".equals(cookie.getName())) {
-                    String token = cookie.getValue();
-                    User user = userMapper.findByToken(token);
-                    if (user != null) {
-                        /* 登录成功，保存session */
-                        request.getSession().setAttribute("user", user);
-                    }
-                    break;
-                }
-            }
-        }
+
         /* 分页展示问题 */
         PaginationDTO paginationDTO = questionService.list(page, size);
         model.addAttribute("paginationDTO", paginationDTO);

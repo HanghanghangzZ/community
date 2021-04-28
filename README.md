@@ -18,6 +18,7 @@
 
 [springboot整合mybatis 文档](https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/)
 
+[springmvc 文档](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc)
 ## 工具
 git
 
