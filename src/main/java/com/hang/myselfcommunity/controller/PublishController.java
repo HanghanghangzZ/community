@@ -1,12 +1,15 @@
 package com.hang.myselfcommunity.controller;
 
+import com.hang.myselfcommunity.dto.QuestionDTO;
 import com.hang.myselfcommunity.mapper.QuestionMapper;
 import com.hang.myselfcommunity.model.Question;
 import com.hang.myselfcommunity.model.User;
+import com.hang.myselfcommunity.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -15,11 +18,30 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class PublishController {
 
-    private QuestionMapper questionMapper;
+    private QuestionService questionService;
 
     @Autowired
-    public void setQuestionMapper(QuestionMapper questionMapper) {
-        this.questionMapper = questionMapper;
+    public void setQuestionService(QuestionService questionService) {
+        this.questionService = questionService;
+    }
+
+    /**
+     * 修改问题时所用的请求路径，与发布问题的页面与代码复用
+     *
+     * @param id
+     * @param model
+     * @return
+     */
+    @GetMapping("/publish/{id}")
+    public String edit(@PathVariable Integer id,
+                       Model model) {
+        QuestionDTO questionDTO = questionService.getById(id);
+        model.addAttribute("title", questionDTO.getQuestion().getTitle());
+        model.addAttribute("tag", questionDTO.getQuestion().getTag());
+        model.addAttribute("description", questionDTO.getQuestion().getDescription());
+        model.addAttribute("id", id);
+
+        return "publish";
     }
 
     /* get渲染页面， post执行请求 */
@@ -32,9 +54,11 @@ public class PublishController {
     public String doPublish(@RequestParam(value = "title", required = false, defaultValue = "") String title,
                             @RequestParam(value = "tag", required = false, defaultValue = "") String tag,
                             @RequestParam(value = "description", required = false, defaultValue = "") String description,
+                            @RequestParam(value = "id", required = false) Integer id,
                             HttpServletRequest request,
                             Model model) {
 
+        model.addAttribute("id", id);
         model.addAttribute("title", title);
         model.addAttribute("tag", tag);
         model.addAttribute("description", description);
@@ -59,13 +83,18 @@ public class PublishController {
         }
 
         Question question = new Question();
-        question.setGmtCreate(System.currentTimeMillis());
-        question.setGmtModified(question.getGmtCreate());
+
         question.setTag(tag);
         question.setTitle(title);
         question.setDescription(description);
         question.setCreator(user.getID());
-        questionMapper.create(question);
+
+        /* 发布 和 编辑 复用代码的关键 */
+        /* 发布时因为id是需要自动生成的，所以是null */
+        /* 编辑时因为已经有了记录，所以有id */
+        question.setId(id);
+
+        questionService.createOrUpdate(question);
 
         return "redirect:/";
     }

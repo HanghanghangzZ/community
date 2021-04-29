@@ -17,6 +17,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
+
+    <!-- 访问profile时需要以 /profile/{action} 的形式访问，那么就会在action的这个层级下查找静态资源，所以我们需要在前面加上 / 表示在根下进行查找 -->
     <link rel="stylesheet" href="/css/profile.css">
 </head>
 <body>
