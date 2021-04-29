@@ -1,5 +1,6 @@
 package com.hang.myselfcommunity.mapper;
 
+import com.hang.myselfcommunity.dto.QuestionDTO;
 import com.hang.myselfcommunity.model.Question;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,8 +22,11 @@ public interface QuestionMapper {
     Integer count();
 
     @Select("SELECT * FROM community.question WHERE creator=#{userId} LIMIT #{offset}, #{size}")
-    List<Question> listByUserId(@Param("userId") Integer userId, @Param("offset") int offset, @Param("size") Integer size);
+    List<Question> listByUserId(@Param("userId") Integer userId, @Param("offset") Integer offset, @Param("size") Integer size);
 
     @Select("SELECT COUNT(1) FROM community.question WHERE creator=#{userId}")
     Integer countByUserId(@Param("userId") Integer userId);
+
+    @Select("SELECT * FROM community.question WHERE id=#{id}")
+    Question getById(@Param("id") Integer id);
 }

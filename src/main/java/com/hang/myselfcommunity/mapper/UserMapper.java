@@ -1,10 +1,7 @@
 package com.hang.myselfcommunity.mapper;
 
 import com.hang.myselfcommunity.model.User;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface UserMapper {
@@ -18,4 +15,10 @@ public interface UserMapper {
 
     @Select("SELECT * FROM community.user WHERE id=#{id}")
     User findById(@Param("id") Integer creator);
+
+    @Select("SELECT * FROM community.user WHERE account_id=#{accountId}")
+    User findByAccountId(@Param("accountId") String accountId);
+
+    @Update("UPDATE community.user SET token=#{token}, name=#{name}, avatar_url=#{avatarUrl}, gmt_modified=#{gmtModified}")
+    void update(User user);
 }

@@ -48,7 +48,7 @@ public class QuestionService {
         }
         if (page <= 0) {
             page = 1;
-        } else if (page > totalPage) {
+        } else if (page > totalPage && totalPage != 0) {
             page = totalPage;
         }
 
@@ -81,7 +81,7 @@ public class QuestionService {
         }
         if (page <= 0) {
             page = 1;
-        } else if (page > totalPage) {
+        } else if (page > totalPage && totalPage != 0) {
             page = totalPage;
         }
 
@@ -101,5 +101,14 @@ public class QuestionService {
         paginationDTO.setPaginationDTO(totalPage, page);
 
         return paginationDTO;
+    }
+
+    public QuestionDTO getById(Integer id) {
+        Question question = questionMapper.getById(id);
+        QuestionDTO questionDTO = new QuestionDTO(question);
+        User user = userMapper.findById(question.getCreator());
+        questionDTO.setUser(user);
+
+        return questionDTO;
     }
 }

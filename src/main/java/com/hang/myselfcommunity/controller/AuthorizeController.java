@@ -5,6 +5,7 @@ import com.hang.myselfcommunity.dto.GitHubUser;
 import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.provider.GitHubProvider;
+import com.hang.myselfcommunity.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
@@ -19,15 +21,17 @@ import java.util.UUID;
 public class AuthorizeController {
 
     private GitHubProvider gitHubProvider;
+
     @Autowired
     public void setGitHubProvider(GitHubProvider gitHubProvider) {
         this.gitHubProvider = gitHubProvider;
     }
 
-    private UserMapper userMapper;
+    private UserService userService;
+
     @Autowired
-    public void setUserMapper(UserMapper userMapper) {
-        this.userMapper = userMapper;
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     /* 在Spring的IOC容器启动时会将配置文件中的键值对存到一个map中，当真正要使用的时候，通过下面这个注解去获取，设置到我们的属性中 */
@@ -43,6 +47,7 @@ public class AuthorizeController {
 
     /**
      * 用户认证后GitHub携带code执行的回调函数
+     *
      * @param code
      * @param state
      * @return
@@ -59,18 +64,16 @@ public class AuthorizeController {
         accessTokenDTO.setRedirect_uri(redirectUri);
         String accessToken = gitHubProvider.getAccessToken(accessTokenDTO);
         GitHubUser gitHubUser = gitHubProvider.getUser(accessToken);
-        System.out.println(gitHubUser);
+
         if (gitHubUser != null) {
             User user = new User();
             String token = UUID.randomUUID().toString();
             user.setToken(token);
             user.setName(gitHubUser.getLogin());
             user.setAccountId(String.valueOf(gitHubUser.getId()));
-            user.setGmtCreate(System.currentTimeMillis());
-            user.setGmtModified(user.getGmtCreate());
             user.setAvatarUrl(gitHubUser.getAvatar_url());
 
-            userMapper.insertUser(user);
+            userService.createOrUpdate(user);
             /* 保存cookie */
             response.addCookie(new Cookie("token", token));
             return "redirect:/";
@@ -80,7 +83,19 @@ public class AuthorizeController {
         }
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request,
+                         HttpServletResponse response) {
 
+        /* 移除session中的用户信息 */
+        request.getSession().removeAttribute("user");
+
+        /* 立即删除cookie */
+        Cookie cookie = new Cookie("token", null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:/";
+    }
 
 
 }
