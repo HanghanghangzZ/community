@@ -28,6 +28,8 @@ github
 
 [flyway 文档 一个数据库迁移工具](https://flywaydb.org/documentation/getstarted/firststeps/maven)
 
+[Mybatis Generator](http://mybatis.org/generator/index.html)
+
 ## 功能
 ### 使用GitHub账号登录
 ![img.png](img.png)
@@ -68,4 +70,9 @@ create table question
     constraint question_pk
         primary key (id)
 );
+```
+
+## Mybatis Generator
+```shell
+mvn -Dmybatis.generator.overwrite=true mybatis-generator:generate
 ```

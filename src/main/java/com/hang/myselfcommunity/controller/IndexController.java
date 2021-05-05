@@ -1,7 +1,6 @@
 package com.hang.myselfcommunity.controller;
 
 import com.hang.myselfcommunity.dto.PaginationDTO;
-import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,13 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class IndexController {
-
-    private UserMapper userMapper;
-
-    @Autowired
-    public void setUserMapper(UserMapper userMapper) {
-        this.userMapper = userMapper;
-    }
 
     private QuestionService questionService;
     @Autowired

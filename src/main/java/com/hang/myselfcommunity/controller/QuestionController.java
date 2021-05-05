@@ -1,7 +1,6 @@
 package com.hang.myselfcommunity.controller;
 
 import com.hang.myselfcommunity.dto.QuestionDTO;
-import com.hang.myselfcommunity.mapper.QuestionMapper;
 import com.hang.myselfcommunity.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

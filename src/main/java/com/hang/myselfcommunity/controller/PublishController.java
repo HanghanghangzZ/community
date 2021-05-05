@@ -1,7 +1,6 @@
 package com.hang.myselfcommunity.controller;
 
 import com.hang.myselfcommunity.dto.QuestionDTO;
-import com.hang.myselfcommunity.mapper.QuestionMapper;
 import com.hang.myselfcommunity.model.Question;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.service.QuestionService;
@@ -87,7 +86,7 @@ public class PublishController {
         question.setTag(tag);
         question.setTitle(title);
         question.setDescription(description);
-        question.setCreator(user.getID());
+        question.setCreator(user.getId());
 
         /* 发布 和 编辑 复用代码的关键 */
         /* 发布时因为id是需要自动生成的，所以是null */

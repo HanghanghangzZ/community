@@ -1,10 +1,12 @@
 package com.hang.myselfcommunity.service;
 
-import com.hang.myselfcommunity.dto.GitHubUser;
 import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.User;
+import com.hang.myselfcommunity.model.UserExample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -25,20 +27,32 @@ public class UserService {
      * @param user
      */
     public void createOrUpdate(User user) {
-        User dbUser = userMapper.findByAccountId(user.getAccountId());
+        UserExample userExample = new UserExample();
+        userExample.createCriteria()
+                .andAccountIdEqualTo(user.getAccountId());
+        List<User> users = userMapper.selectByExample(userExample);
+        User dbUser = null;
+        if (users.size() != 0) {
+            dbUser = users.get(0);
+        }
         if (dbUser != null) {
             /* 更新 */
-            dbUser.setToken(user.getToken());
-            dbUser.setName(user.getName());
-            dbUser.setAvatarUrl(user.getAvatarUrl());
-            dbUser.setGmtModified(System.currentTimeMillis());
-            userMapper.update(dbUser);
+            User updateUser = new User();
+            updateUser.setToken(user.getToken());
+            updateUser.setName(user.getName());
+            updateUser.setAvatarUrl(user.getAvatarUrl());
+            updateUser.setGmtModified(System.currentTimeMillis());
+
+            UserExample updateUserExample = new UserExample();
+            updateUserExample.createCriteria()
+                    .andIdEqualTo(dbUser.getId());
+            userMapper.updateByExampleSelective(updateUser, updateUserExample);
         } else {
             /* 插入 */
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
 
-            userMapper.insertUser(user);
+            userMapper.insert(user);
         }
     }
 }

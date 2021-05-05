@@ -2,7 +2,6 @@ package com.hang.myselfcommunity.controller;
 
 import com.hang.myselfcommunity.dto.AccessTokenDTO;
 import com.hang.myselfcommunity.dto.GitHubUser;
-import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.provider.GitHubProvider;
 import com.hang.myselfcommunity.service.UserService;
