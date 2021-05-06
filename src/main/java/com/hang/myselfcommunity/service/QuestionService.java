@@ -4,6 +4,7 @@ import com.hang.myselfcommunity.dto.PaginationDTO;
 import com.hang.myselfcommunity.dto.QuestionDTO;
 import com.hang.myselfcommunity.exception.CustomizeErrorCode;
 import com.hang.myselfcommunity.exception.CustomizeException;
+import com.hang.myselfcommunity.mapper.QuestionExtMapper;
 import com.hang.myselfcommunity.mapper.QuestionMapper;
 import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.Question;
@@ -32,6 +33,13 @@ public class QuestionService {
     @Autowired
     public void setUserMapper(UserMapper userMapper) {
         this.userMapper = userMapper;
+    }
+
+    private QuestionExtMapper questionExtMapper;
+
+    @Autowired
+    public void setQuestionExtMapper(QuestionExtMapper questionExtMapper) {
+        this.questionExtMapper = questionExtMapper;
     }
 
     /**
@@ -175,6 +183,9 @@ public class QuestionService {
             /* 创建 */
             question.setGmtCreate(System.currentTimeMillis());
             question.setGmtModified(question.getGmtCreate());
+            question.setViewCount(0);
+            question.setLikeCount(0);
+            question.setCommentCount(0);
             questionMapper.insert(question);
 
         } else {
@@ -193,5 +204,12 @@ public class QuestionService {
                 throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
             }
         }
+    }
+
+    public void increaseView(Integer id) {
+        Question question = new Question();
+        question.setId(id);
+        question.setViewCount(1);
+        questionExtMapper.increaseView(question);
     }
 }

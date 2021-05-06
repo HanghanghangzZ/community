@@ -40,7 +40,10 @@
                     </a>
                 </div>
                 <div class="media-body">
-                    <h4 class="media-heading" th:text="${questionDTO.question.getTitle()}"></h4>
+                    <h4 class="media-heading">
+                        <a th:href="@{'/question/' + ${questionDTO.question.id}}"
+                           th:text="${questionDTO.question.getTitle()}"></a>
+                    </h4>
                     <span th:text="${questionDTO.question.getDescription()}"></span> <br>
                     <span class="text-desc">
                         作者 <span th:text="${questionDTO.user.name}"></span> •
