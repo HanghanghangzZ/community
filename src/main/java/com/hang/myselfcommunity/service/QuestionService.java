@@ -2,6 +2,8 @@ package com.hang.myselfcommunity.service;
 
 import com.hang.myselfcommunity.dto.PaginationDTO;
 import com.hang.myselfcommunity.dto.QuestionDTO;
+import com.hang.myselfcommunity.exception.CustomizeErrorCode;
+import com.hang.myselfcommunity.exception.CustomizeException;
 import com.hang.myselfcommunity.mapper.QuestionMapper;
 import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.Question;
@@ -149,16 +151,16 @@ public class QuestionService {
      */
     public QuestionDTO getById(Integer id) {
 
-        QuestionExample questionExample = new QuestionExample();
-        questionExample.createCriteria()
-                .andIdEqualTo(id);
-        List<Question> questions = questionMapper.selectByExample(questionExample);
+        Question question = questionMapper.selectByPrimaryKey(id);
+        if (question == null) {
+            throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
+        }
 
-        QuestionDTO questionDTO = new QuestionDTO(questions.get(0));
+        QuestionDTO questionDTO = new QuestionDTO(question);
 
         UserExample userExample = new UserExample();
         userExample.createCriteria()
-                .andIdEqualTo(questions.get(0).getCreator());
+                .andIdEqualTo(question.getCreator());
         List<User> users = userMapper.selectByExample(userExample);
 
         questionDTO.setUser(users.get(0));
@@ -186,7 +188,10 @@ public class QuestionService {
             QuestionExample example = new QuestionExample();
             example.createCriteria()
                     .andIdEqualTo(question.getId());
-            questionMapper.updateByExampleSelective(updateQuestion, example);
+            int updated = questionMapper.updateByExampleSelective(updateQuestion, example);
+            if (updated != 1) {
+                throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
+            }
         }
     }
 }
