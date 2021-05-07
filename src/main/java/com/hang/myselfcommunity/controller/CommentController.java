@@ -28,6 +28,7 @@ public class CommentController {
     public Object post(@RequestBody CommentDTO commentDTO,
                        HttpServletRequest request) {
 
+        /* 没有登录不能回复 */
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
             return ResultDTO.errorOf(CustomizeErrorCode.NOT_LOGIN);
@@ -40,7 +41,9 @@ public class CommentController {
         comment.setParentId(commentDTO.getParentId());
         comment.setType(commentDTO.getType());
         comment.setLikeCount(0L);
-        CommentService.insert(comment);
+        comment.setContent(commentDTO.getContent());
+        comment.setCommentCount(0);
+        commentService.insert(comment);
 
         return ResultDTO.okOf();
     }

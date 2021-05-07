@@ -19,7 +19,7 @@ public class QuestionController {
     }
 
     @GetMapping("/question/{id}")
-    public String question(@PathVariable Integer id,
+    public String question(@PathVariable Long id,
                            Model model) {
 
         /* 累加阅读数 */

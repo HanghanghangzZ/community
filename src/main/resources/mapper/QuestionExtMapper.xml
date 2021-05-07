@@ -17,4 +17,9 @@
         set view_count = view_count + #{viewCount,jdbcType=INTEGER}
         where id = #{id}
     </update>
+    <update id="increaseCommentCount" parameterType="com.hang.myselfcommunity.model.Question">
+        update question
+        set comment_count = comment_count + #{commentCount,jdbcType=INTEGER}
+        where id = #{id}
+    </update>
 </mapper>

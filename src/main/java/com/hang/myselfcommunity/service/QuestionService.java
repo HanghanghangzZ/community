@@ -98,7 +98,7 @@ public class QuestionService {
      * @param size
      * @return
      */
-    public PaginationDTO listByUserId(Integer userId, Integer page, Integer size) {
+    public PaginationDTO listByUserId(Long userId, Integer page, Integer size) {
         /* 容错 */
         Integer totalPage;
 
@@ -157,7 +157,7 @@ public class QuestionService {
      * @param id
      * @return
      */
-    public QuestionDTO getById(Integer id) {
+    public QuestionDTO getById(Long id) {
 
         Question question = questionMapper.selectByPrimaryKey(id);
         if (question == null) {
@@ -177,7 +177,7 @@ public class QuestionService {
     }
 
     public void createOrUpdate(Question question) {
-        Integer id = question.getId();
+        Long id = question.getId();
 
         if (id == null) {
             /* 创建 */
@@ -206,7 +206,7 @@ public class QuestionService {
         }
     }
 
-    public void increaseView(Integer id) {
+    public void increaseView(Long id) {
         Question question = new Question();
         question.setId(id);
         question.setViewCount(1);
