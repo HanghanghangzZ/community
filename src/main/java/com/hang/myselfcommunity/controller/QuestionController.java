@@ -36,11 +36,17 @@ public class QuestionController {
 
         /* 累加阅读数 */
         questionService.increaseView(id);
+        /* 问题内容以及信息 */
         QuestionDTO questionDTO = questionService.getById(id);
         model.addAttribute("questionDTO", questionDTO);
 
+        /* 评论列表 */
         List<CommentDTO> commentDTOS = commentService.listByIdAndType(id, CommentTypeEnum.QUESTION);
         model.addAttribute("commentDTOS", commentDTOS);
+
+        /* 相关问题列表 */
+        List<QuestionDTO> relatedQuestionDTOList = questionService.selectRelated(questionDTO);
+        model.addAttribute("relatedQuestionDTOList", relatedQuestionDTOList);
 
         return "question";
     }

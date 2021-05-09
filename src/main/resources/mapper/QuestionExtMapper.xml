@@ -22,4 +22,10 @@
         set comment_count = comment_count + #{commentCount,jdbcType=INTEGER}
         where id = #{id}
     </update>
+    <select id="selectRelated" parameterType="com.hang.myselfcommunity.model.Question" resultMap="BaseResultMap">
+        SELECT *
+        FROM question
+        WHERE tag REGEXP #{tag}
+          AND id != #{id}
+    </select>
 </mapper>

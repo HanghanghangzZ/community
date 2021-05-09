@@ -11,12 +11,15 @@ import com.hang.myselfcommunity.model.Question;
 import com.hang.myselfcommunity.model.QuestionExample;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.model.UserExample;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -68,7 +71,10 @@ public class QuestionService {
         int offset = size * (page - 1);
 
         /* Mybatis Generator 的方式实现分页 */
-        List<Question> list = questionMapper.selectByExampleWithRowbounds(new QuestionExample(), new RowBounds(offset, size));
+
+        QuestionExample questionExample = new QuestionExample();
+        questionExample.setOrderByClause("gmt_create desc");
+        List<Question> list = questionMapper.selectByExampleWithRowbounds(questionExample, new RowBounds(offset, size));
 
         ArrayList<QuestionDTO> questionDTOList = new ArrayList<>();
         PaginationDTO paginationDTO = new PaginationDTO();
@@ -211,5 +217,27 @@ public class QuestionService {
         question.setId(id);
         question.setViewCount(1);
         questionExtMapper.increaseView(question);
+    }
+
+    public List<QuestionDTO> selectRelated(QuestionDTO queryDTO) {
+        if (StringUtils.isBlank(queryDTO.getQuestion().getTag())) {
+            return new ArrayList<>();
+        }
+
+//        String[] tags = queryDTO.getQuestion().getTag().split(",");
+//        /* 将tags中的字符串之间以 | 为分隔进行拼接 */
+//        String regexpTag = Arrays.stream(tags).collect(Collectors.joining("|"));
+        String regexpTag = queryDTO.getQuestion().getTag().replace(',', '|');
+        Question question = new Question();
+        question.setTag(regexpTag);
+        question.setId(queryDTO.getQuestion().getId());
+
+        List<Question> questionList = questionExtMapper.selectRelated(question);
+        List<QuestionDTO> questionDTOList = questionList.stream().map(q -> {
+            QuestionDTO questionDTO = new QuestionDTO(q);
+            return questionDTO;
+        }).collect(Collectors.toList());
+
+        return questionDTOList;
     }
 }
