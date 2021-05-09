@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.time.Duration;
 
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
     private SessionInterceptor sessionInterceptor;
@@ -26,12 +26,13 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(sessionInterceptor).addPathPatterns("/**");
     }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/resources/**", "/static/**", "/js/**", "/css/**")
-                .addResourceLocations("/public", "classpath:/static/", "classpath:/static/js/", "classpath:/static/css/")
-                .setCacheControl(CacheControl.maxAge(Duration.ofDays(365)));
-        /* 这些资源的使用期限为一年，以确保最大程度地利用浏览器缓存并减少浏览器发出的HTTP请求。 */
-        /* Last-Modified从中推导出该信息，Resource#lastModified 以便HTTP条件请求与"Last-Modified"标头一起支持 */
-    }
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/resources/**", "/static/**", "/js/**", "/css/**")
+//                .addResourceLocations("/public", "classpath:/static/", "classpath:/static/js/", "classpath:/static/css/")
+//                .setCacheControl(CacheControl.maxAge(Duration.ofDays(365)));
+//        /* 这些资源的使用期限为一年，以确保最大程度地利用浏览器缓存并减少浏览器发出的HTTP请求。 */
+//        /* 但是这样配置会导致样式更新之后，浏览器还是从本地缓存读取之前的样式 */
+//        /* Last-Modified从中推导出该信息，Resource#lastModified 以便HTTP条件请求与"Last-Modified"标头一起支持 */
+//    }
 }

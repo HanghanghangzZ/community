@@ -1,12 +1,12 @@
 package com.hang.myselfcommunity.controller;
 
-import com.hang.myselfcommunity.dto.CommentDTO;
+import com.hang.myselfcommunity.dto.CommentCreateDTO;
 import com.hang.myselfcommunity.dto.ResultDTO;
 import com.hang.myselfcommunity.exception.CustomizeErrorCode;
-import com.hang.myselfcommunity.mapper.CommentMapper;
 import com.hang.myselfcommunity.model.Comment;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.service.CommentService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +25,7 @@ public class CommentController {
     }
 
     @PostMapping("/comment")
-    public Object post(@RequestBody CommentDTO commentDTO,
+    public Object post(@RequestBody CommentCreateDTO commentCreateDTO,
                        HttpServletRequest request) {
 
         /* 没有登录不能回复 */
@@ -34,14 +34,18 @@ public class CommentController {
             return ResultDTO.errorOf(CustomizeErrorCode.NOT_LOGIN);
         }
 
+        if (commentCreateDTO == null || StringUtils.isBlank(commentCreateDTO.getContent())) {
+            return ResultDTO.errorOf(CustomizeErrorCode.COMMENT_IS_EMPTY);
+        }
+
         Comment comment = new Comment();
         comment.setCommentator(user.getId());
         comment.setGmtCreate(System.currentTimeMillis());
         comment.setGmtModified(comment.getGmtCreate());
-        comment.setParentId(commentDTO.getParentId());
-        comment.setType(commentDTO.getType());
+        comment.setParentId(commentCreateDTO.getParentId());
+        comment.setType(commentCreateDTO.getType());
         comment.setLikeCount(0L);
-        comment.setContent(commentDTO.getContent());
+        comment.setContent(commentCreateDTO.getContent());
         comment.setCommentCount(0);
         commentService.insert(comment);
 
