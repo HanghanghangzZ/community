@@ -1,18 +1,19 @@
 package com.hang.myselfcommunity.controller;
 
 import com.hang.myselfcommunity.dto.CommentCreateDTO;
+import com.hang.myselfcommunity.dto.CommentDTO;
 import com.hang.myselfcommunity.dto.ResultDTO;
+import com.hang.myselfcommunity.enums.CommentTypeEnum;
 import com.hang.myselfcommunity.exception.CustomizeErrorCode;
 import com.hang.myselfcommunity.model.Comment;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.service.CommentService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 public class CommentController {
@@ -50,5 +51,12 @@ public class CommentController {
         commentService.insert(comment);
 
         return ResultDTO.okOf();
+    }
+
+    @GetMapping("/comment/{id}")
+    public ResultDTO<List> comments(@PathVariable Long id) {
+        List<CommentDTO> commentDTOS = commentService.listByIdAndType(id, CommentTypeEnum.COMMENT);
+
+        return ResultDTO.okOf(commentDTOS);
     }
 }

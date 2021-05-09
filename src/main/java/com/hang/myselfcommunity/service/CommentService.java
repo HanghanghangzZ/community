@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,6 +84,8 @@ public class CommentService {
     }
 
     /**
+     * 这个方法在查询问题评论和二级评论的时候进行了复用
+     * <p>
      * 这里大量的用到了Java8的新特性，stream流。那么为什么要这么做呢？
      * 我们在这个方法中需要将Comment与发布它的User一起封装成CommentDTO。
      * 因为一个User可以在一个Question下发布多个Comment，
@@ -92,13 +93,14 @@ public class CommentService {
      * 所以我们在这个方法中使用stream流来做处理。将sql层面上的处理转移到Java代码层面上，减少重复操作。
      *
      * @param id
+     * @param type
      * @return
      */
-    public List<CommentDTO> listByQuestionId(Long id) {
+    public List<CommentDTO> listByIdAndType(Long id, CommentTypeEnum type) {
         CommentExample commentExample = new CommentExample();
         commentExample.createCriteria()
                 .andParentIdEqualTo(id)
-                .andTypeEqualTo(CommentTypeEnum.QUESTION.getType());
+                .andTypeEqualTo(type.getType());
         commentExample.setOrderByClause("gmt_create desc");
         List<Comment> comments = commentMapper.selectByExample(commentExample);
 
@@ -122,7 +124,7 @@ public class CommentService {
         List<CommentDTO> collectDTOs = comments.stream().map(comment -> {
             CommentDTO commentDTO = new CommentDTO(comment, userMap.get(comment.getCommentator()));
             return commentDTO;
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList());        //这里返回的是一个ArrayList
 
         return collectDTOs;
     }

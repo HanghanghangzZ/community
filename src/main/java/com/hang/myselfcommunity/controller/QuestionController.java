@@ -1,8 +1,8 @@
 package com.hang.myselfcommunity.controller;
 
-import com.hang.myselfcommunity.dto.CommentCreateDTO;
 import com.hang.myselfcommunity.dto.CommentDTO;
 import com.hang.myselfcommunity.dto.QuestionDTO;
+import com.hang.myselfcommunity.enums.CommentTypeEnum;
 import com.hang.myselfcommunity.service.CommentService;
 import com.hang.myselfcommunity.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class QuestionController {
         QuestionDTO questionDTO = questionService.getById(id);
         model.addAttribute("questionDTO", questionDTO);
 
-        List<CommentDTO> commentDTOS = commentService.listByQuestionId(id);
+        List<CommentDTO> commentDTOS = commentService.listByIdAndType(id, CommentTypeEnum.QUESTION);
         model.addAttribute("commentDTOS", commentDTOS);
 
         return "question";
