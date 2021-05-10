@@ -19,5 +19,7 @@ body {
 }
 
 .tab-tag .label-info {
-    margin-right: 10px;
+    margin: 5px 5px;
+    display: inline-bLock;
+    white-space: normal;
 }

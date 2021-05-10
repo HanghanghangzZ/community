@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Data
-public class PaginationDTO {
-    private List<QuestionDTO> questionDTOList;
+public class PaginationDTO<T> {
+    private List<T> DTOList;
     private boolean showPrevious;
     private boolean showFirstPage;
     private boolean showNext;

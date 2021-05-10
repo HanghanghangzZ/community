@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +51,7 @@ public class QuestionService {
      * @param size
      * @return
      */
-    public PaginationDTO list(Integer page, Integer size) {
+    public PaginationDTO<QuestionDTO> list(Integer page, Integer size) {
 
         /* 容错 */
         Integer totalPage;
@@ -77,7 +76,7 @@ public class QuestionService {
         List<Question> list = questionMapper.selectByExampleWithRowbounds(questionExample, new RowBounds(offset, size));
 
         ArrayList<QuestionDTO> questionDTOList = new ArrayList<>();
-        PaginationDTO paginationDTO = new PaginationDTO();
+        PaginationDTO<QuestionDTO> paginationDTO = new PaginationDTO<>();
         for (Question question : list) {
 
             UserExample userExample = new UserExample();
@@ -89,7 +88,7 @@ public class QuestionService {
             questionDTO.setUser(users.get(0));
             questionDTOList.add(questionDTO);
         }
-        paginationDTO.setQuestionDTOList(questionDTOList);
+        paginationDTO.setDTOList(questionDTOList);
 
         paginationDTO.setPaginationDTO(totalPage, page);
 
@@ -104,7 +103,7 @@ public class QuestionService {
      * @param size
      * @return
      */
-    public PaginationDTO listByUserId(Long userId, Integer page, Integer size) {
+    public PaginationDTO<QuestionDTO> listByUserId(Long userId, Integer page, Integer size) {
         /* 容错 */
         Integer totalPage;
 
@@ -134,7 +133,7 @@ public class QuestionService {
         List<Question> list = questionMapper.selectByExampleWithRowbounds(questionExample1, new RowBounds(offset, size));
 
         ArrayList<QuestionDTO> questionDTOList = new ArrayList<>();
-        PaginationDTO paginationDTO = new PaginationDTO();
+        PaginationDTO<QuestionDTO> paginationDTO = new PaginationDTO<>();
 
         /* 获取指定user */
         UserExample userExample = new UserExample();
@@ -149,7 +148,7 @@ public class QuestionService {
             questionDTOList.add(questionDTO);
         }
         /* 封装成分页使用的PaginationDTO */
-        paginationDTO.setQuestionDTOList(questionDTOList);
+        paginationDTO.setDTOList(questionDTOList);
 
         paginationDTO.setPaginationDTO(totalPage, page);
 
@@ -182,6 +181,11 @@ public class QuestionService {
         return questionDTO;
     }
 
+    /**
+     * 在创建或修改问题时复用的一个方法
+     *
+     * @param question
+     */
     public void createOrUpdate(Question question) {
         Long id = question.getId();
 
@@ -219,6 +223,12 @@ public class QuestionService {
         questionExtMapper.increaseView(question);
     }
 
+    /**
+     * 根据标签寻找相关的问题
+     *
+     * @param queryDTO 根据这个DTO中封装的Question的tag来寻找与它相关的问题
+     * @return
+     */
     public List<QuestionDTO> selectRelated(QuestionDTO queryDTO) {
         if (StringUtils.isBlank(queryDTO.getQuestion().getTag())) {
             return new ArrayList<>();

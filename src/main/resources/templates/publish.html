@@ -42,7 +42,8 @@
                     <div id="select-tag" class="tab-tag">
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" th:each="selectCategory : ${tags}">
+                            <li role="presentation" th:each="selectCategory,selectCategoryStat : ${tags}"
+                                th:class="${selectCategoryStat.first ? 'active':''}">
                                 <a th:href="@{'#' + ${selectCategory.categoryName}}"
                                    aria-controls="home" role="tab" data-toggle="tab"
                                    th:text="${selectCategory.categoryName}"></a>
@@ -51,12 +52,14 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane active" th:id="${selectCategory.categoryName}"
-                                 th:each="selectCategory : ${tags}">
-                                <span class="label label-info" th:each="selectTag : ${selectCategory.tags}">
+                            <div role="tabpanel"
+                                 th:class="${selectCategoryStat.first ? 'active tab-pane':'tab-pane'}"
+                                 th:id=" ${selectCategory.categoryName}"
+                                 th:each="selectCategory,selectCategoryStat : ${tags}">
+                            <span class="label label-info" th:each="selectTag : ${selectCategory.tags}">
                                     <span class="glyphicon glyphicon-tags" onclick="selectTag(this)"
                                           th:data-tag="${selectTag}"
-                                          th:text="${selectTag}">Java</span>
+                                          th:text="${' ' + selectTag}">Java</span>
                                 </span>
                             </div>
                         </div>

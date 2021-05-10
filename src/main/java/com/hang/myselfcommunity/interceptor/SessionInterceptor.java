@@ -3,6 +3,7 @@ package com.hang.myselfcommunity.interceptor;
 import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.model.UserExample;
+import com.hang.myselfcommunity.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -23,8 +24,15 @@ public class SessionInterceptor implements HandlerInterceptor {
         this.userMapper = userMapper;
     }
 
+    private NotificationService notificationService;
+
+    @Autowired
+    public void setNotificationService(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
+
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         /* 利用cookie来保持登录状态 */
         /* 这只适用于小用户的范围，当用户量较大时，这样子根据token进行查询的方式速度较为缓慢 */
         Cookie[] cookies = request.getCookies();
@@ -41,12 +49,13 @@ public class SessionInterceptor implements HandlerInterceptor {
                     if (users.size() != 0) {
                         /* 登录成功，保存session */
                         request.getSession().setAttribute("user", users.get(0));
+                        long unreadCount = notificationService.unreadCount(users.get(0).getId());
+                        request.getSession().setAttribute("unreadCount", unreadCount);
                     }
                     break;
                 }
             }
         }
-
         return true;
     }
 
@@ -59,6 +68,4 @@ public class SessionInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
-
-
 }

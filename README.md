@@ -56,7 +56,7 @@ mvn flyway:migrate
 
 一定要在项目开始前做好数据库的相关设计/(ㄒoㄒ)/~~
 
-```sql
+```mysql
 create table user
 (
     ID           int auto_increment
@@ -96,6 +96,19 @@ create table comment
     gmt_modified bigint not null comment '更新时间',
     like_count   bigint default 0 null,
     constraint comment_pk
+        primary key (id)
+);
+
+create table notification
+(
+    id         bigint auto_increment,
+    notifier   bigint        not null,
+    receiver   bigint        not null,
+    outer_id   bigint        not null,
+    type       int           not null,
+    gmt_create bigint        not null,
+    status     int default 0 not null,
+    constraint notification_pk
         primary key (id)
 );
 ```

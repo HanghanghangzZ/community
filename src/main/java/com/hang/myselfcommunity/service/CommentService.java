@@ -2,6 +2,8 @@ package com.hang.myselfcommunity.service;
 
 import com.hang.myselfcommunity.dto.CommentDTO;
 import com.hang.myselfcommunity.enums.CommentTypeEnum;
+import com.hang.myselfcommunity.enums.NotificationStatusEnum;
+import com.hang.myselfcommunity.enums.NotificationTypeEnum;
 import com.hang.myselfcommunity.exception.CustomizeErrorCode;
 import com.hang.myselfcommunity.exception.CustomizeException;
 import com.hang.myselfcommunity.mapper.*;
@@ -50,6 +52,13 @@ public class CommentService {
         this.userMapper = userMapper;
     }
 
+    private NotificationMapper notificationMapper;
+
+    @Autowired
+    public void setNotificationMapper(NotificationMapper notificationMapper) {
+        this.notificationMapper = notificationMapper;
+    }
+
     @Transactional  //为此方法添加事务支持，当它抛出 RuntimeException 或 Error 时就会回滚
     public void insert(Comment comment) {
         if (comment.getParentId() == null || comment.getParentId() == 0) {
@@ -60,6 +69,7 @@ public class CommentService {
             throw new CustomizeException(CustomizeErrorCode.TYPE_PARAM_WRONG);
         }
 
+
         if (comment.getType() == CommentTypeEnum.COMMENT.getType()) {
             /* 回复评论 */
             Comment dbComment = commentMapper.selectByPrimaryKey(comment.getParentId());
@@ -67,9 +77,11 @@ public class CommentService {
                 throw new CustomizeException(CustomizeErrorCode.COMMENT_NOT_FOUND);
             }
             commentMapper.insert(comment);
-
+            /* 增加评论数 */
             dbComment.setCommentCount(1);
             commentExtMapper.increaseCommentCount(dbComment);
+            /* 创建通知 */
+            createNotification(comment, dbComment.getCommentator(), NotificationTypeEnum.REPLY_COMMENT);
         } else {
             /* 回答问题 */
             Question dbQuestion = questionMapper.selectByPrimaryKey(comment.getParentId());
@@ -77,10 +89,23 @@ public class CommentService {
                 throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
             }
             commentMapper.insert(comment);
-
+            /* 增加评论数 */
             dbQuestion.setCommentCount(1);
             questionExtMapper.increaseCommentCount(dbQuestion);
+            /* 创建通知 */
+            createNotification(comment, dbQuestion.getCreator(), NotificationTypeEnum.REPLY_QUESTION);
         }
+    }
+
+    private void createNotification(Comment comment, Long receiver, NotificationTypeEnum notificationTypeEnum) {
+        Notification notification = new Notification();
+        notification.setReceiver(receiver);
+        notification.setType(notificationTypeEnum.getType());
+        notification.setGmtCreate(System.currentTimeMillis());
+        notification.setOuterId(comment.getParentId());
+        notification.setNotifier(comment.getCommentator());
+        notification.setStatus(NotificationStatusEnum.UNREAD.getStatus());
+        notificationMapper.insert(notification);
     }
 
     /**
@@ -92,8 +117,8 @@ public class CommentService {
      * 如果使用for循环，在每一次循环中查询该次循环中Comment的发布人，会发生重读查询的情况。
      * 所以我们在这个方法中使用stream流来做处理。将sql层面上的处理转移到Java代码层面上，减少重复操作。
      *
-     * @param id
-     * @param type
+     * @param id   对应Comment表中的parentId，就是这个评论对象的id
+     * @param type 表示这个评论对象是问题还是评论
      * @return
      */
     public List<CommentDTO> listByIdAndType(Long id, CommentTypeEnum type) {
@@ -127,5 +152,10 @@ public class CommentService {
         }).collect(Collectors.toList());        //这里返回的是一个ArrayList
 
         return collectDTOs;
+    }
+
+    public Long getParentId(Long outerId) {
+        Comment comment = commentMapper.selectByPrimaryKey(outerId);
+        return comment.getParentId();
     }
 }
