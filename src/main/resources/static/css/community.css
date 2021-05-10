@@ -11,3 +11,13 @@ body {
     float: right;
     margin-bottom: 15px;
 }
+
+.tab-tag {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.tab-tag .label-info {
+    margin-right: 10px;
+}

@@ -129,3 +129,20 @@ function collapseComments(e) {
         }
     }
 }
+
+function selectTag(e) {
+    let value = e.getAttribute("data-tag");
+    let pre = $("#tag").val();
+    /* pre中不包含value才进行拼接 */
+    if (pre.indexOf(value) == -1) {
+        if (pre) {
+            $("#tag").val(pre + ',' + value);
+        } else {
+            $("#tag").val(value);
+        }
+    }
+}
+
+function showSelectTag() {
+    $("#select-tag").show();
+}

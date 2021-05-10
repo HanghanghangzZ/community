@@ -1,9 +1,11 @@
 package com.hang.myselfcommunity.controller;
 
+import com.hang.myselfcommunity.cache.TagCache;
 import com.hang.myselfcommunity.dto.QuestionDTO;
 import com.hang.myselfcommunity.model.Question;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.service.QuestionService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,13 +41,15 @@ public class PublishController {
         model.addAttribute("tag", questionDTO.getQuestion().getTag());
         model.addAttribute("description", questionDTO.getQuestion().getDescription());
         model.addAttribute("id", id);
+        model.addAttribute("tags", TagCache.get());
 
         return "publish";
     }
 
     /* get渲染页面， post执行请求 */
     @GetMapping("/publish")
-    public String publish() {
+    public String publish(Model model) {
+        model.addAttribute("tags", TagCache.get());
         return "publish";
     }
 
@@ -61,6 +65,13 @@ public class PublishController {
         model.addAttribute("title", title);
         model.addAttribute("tag", tag);
         model.addAttribute("description", description);
+        model.addAttribute("tags", TagCache.get());
+
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            model.addAttribute("error", "用户未登录");
+            return "publish";
+        }
 
         if (description == null || "".equals(description)) {
             model.addAttribute("error", "问题补充不能为空");
@@ -75,9 +86,9 @@ public class PublishController {
             return "publish";
         }
 
-        User user = (User) request.getSession().getAttribute("user");
-        if (user == null) {
-            model.addAttribute("error", "用户未登录");
+        String invalid = TagCache.filterInvalid(tag);
+        if (StringUtils.isNotEmpty(invalid)) {
+            model.addAttribute("error", "不能填入非法标签: " + invalid);
             return "publish";
         }
 
