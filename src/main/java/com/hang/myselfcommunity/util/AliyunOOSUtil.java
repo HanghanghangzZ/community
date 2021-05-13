@@ -17,8 +17,8 @@ import java.util.UUID;
  */
 public class AliyunOOSUtil {
     public static String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
-    public static String accessKeyId = "LTAI5tHSGf6QVZANEf5JmR5j";
-    public static String accessKeySecret = "u0mE3utbv1jCL5Qkl5gSheuLzCS2KL";
+    public static String accessKeyId = "****";
+    public static String accessKeySecret = "*****";
     public static String bucketName = "hanghanghangzz";
     private static OSS ossClient = null;
 
