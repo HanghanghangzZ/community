@@ -36,6 +36,8 @@ github
 
 [Mybatis Generator](http://mybatis.org/generator/index.html)
 
+[开源在线markdown编辑器 集成](https://pandao.github.io/editor.md/)
+
 ## 功能
 
 ### 使用GitHub账号登录
