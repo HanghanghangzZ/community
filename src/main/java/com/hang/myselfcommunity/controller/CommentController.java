@@ -8,6 +8,7 @@ import com.hang.myselfcommunity.exception.CustomizeErrorCode;
 import com.hang.myselfcommunity.model.Comment;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.service.CommentService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
+@Slf4j
 public class CommentController {
 
     private CommentService commentService;
@@ -36,6 +38,7 @@ public class CommentController {
         }
 
         if (commentCreateDTO == null || StringUtils.isBlank(commentCreateDTO.getContent())) {
+            log.error("post method comment is empty");
             return ResultDTO.errorOf(CustomizeErrorCode.COMMENT_IS_EMPTY);
         }
 

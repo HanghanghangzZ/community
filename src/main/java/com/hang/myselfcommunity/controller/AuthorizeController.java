@@ -5,6 +5,7 @@ import com.hang.myselfcommunity.dto.GitHubUser;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.provider.GitHubProvider;
 import com.hang.myselfcommunity.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Controller
+@Slf4j
 public class AuthorizeController {
 
     private GitHubProvider gitHubProvider;
@@ -78,6 +80,8 @@ public class AuthorizeController {
             return "redirect:/";
         } else {
             /* 登录失败，重新登录 */
+            /* 这里的花括号代表会将后面的对象参数拼接进来 */
+            log.error("callback get github error,{}", gitHubUser);
             return "redirect:/";
         }
     }

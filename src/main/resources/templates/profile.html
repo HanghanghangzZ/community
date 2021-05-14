@@ -10,6 +10,7 @@
 
     <!-- 访问profile时需要以 /profile/{action} 的形式访问，那么就会在action的这个层级下查找静态资源，所以我们需要在前面加上 / 表示在根下进行查找 -->
     <link rel="stylesheet" href="/css/profile.css">
+    <link rel="stylesheet" href="/css/footer.css">
 </head>
 <body>
 
@@ -53,6 +54,7 @@
 
             <!-- 我的消息 -->
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" th:if="${section == 'replies'}">
+                <a class="btn btn-default" th:href="@{'/readAll/' + ${session.user.id}}" role="button">全部标为已读</a>
                 <div class="media" th:each="notificationDTO : ${paginationDTO.DTOList}">
                     <div class="media-body">
                         <p class="media-heading">
@@ -115,5 +117,7 @@
         </div>
     </div>
 </div>
+
+<div th:insert="~{commons/footer :: footer}"></div>
 </body>
 </html>

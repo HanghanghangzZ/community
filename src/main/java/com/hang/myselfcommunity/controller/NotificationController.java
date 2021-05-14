@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -52,5 +54,11 @@ public class NotificationController {
         } else {
             return "profile";
         }
+    }
+
+    @GetMapping("/readAll/{userId}")
+    public String readAll(@PathVariable Long userId) {
+        notificationService.readAll(userId);
+        return "redirect:/profile/replies";
     }
 }

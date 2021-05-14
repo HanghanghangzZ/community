@@ -1,0 +1,1 @@
+alter table comment modify content text null;

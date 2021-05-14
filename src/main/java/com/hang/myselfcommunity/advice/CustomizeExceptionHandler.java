@@ -24,7 +24,7 @@ public class CustomizeExceptionHandler {
 
         ex.printStackTrace();
         if ("application/json".equals(contentType)) {
-            /* 返回json*/
+            /* 返回json */
             if (ex instanceof CustomizeException) {
                 return ResultDTO.errorOf((CustomizeException) ex);
             } else {

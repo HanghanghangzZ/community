@@ -1,5 +1,6 @@
 package com.hang.myselfcommunity.mapper;
 
+import com.hang.myselfcommunity.dto.QuestionQueryDTO;
 import com.hang.myselfcommunity.model.Question;
 import com.hang.myselfcommunity.model.QuestionExample;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,4 +17,8 @@ public interface QuestionExtMapper {
     int increaseCommentCount(Question record);
 
     List<Question> selectRelated(Question record);
+
+    Integer countBySearch(QuestionQueryDTO questionQueryDTO);
+
+    List<Question> selectPagination(QuestionQueryDTO questionQueryDTO);
 }

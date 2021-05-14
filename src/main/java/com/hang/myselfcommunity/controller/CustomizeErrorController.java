@@ -1,5 +1,6 @@
 package com.hang.myselfcommunity.controller;
 
+import com.hang.myselfcommunity.exception.CustomizeErrorCode;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,6 +12,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * 这个类负责捕获 CustomizeExceptionHandler 遗漏的异常
+ */
 @Controller
 @RequestMapping("${server.error.path:${error.path:/error}}")
 public class CustomizeErrorController implements ErrorController {
@@ -24,9 +28,9 @@ public class CustomizeErrorController implements ErrorController {
         HttpStatus status = getStatus(request);
 
         if (status.is4xxClientError()) {
-            model.addAttribute("message", "你的请求错了，要不然换个姿势 (*^_^*)");
+            model.addAttribute("message", CustomizeErrorCode.REQUEST_ERROR.getMessage());
         } else if (status.is5xxServerError()) {
-            model.addAttribute("message", "服务冒烟了，要不然你稍后再试试 (*^_^*)");
+            model.addAttribute("message", CustomizeErrorCode.SYS_ERROR.getMessage());
         }
         model.addAttribute("httpStatus", status.toString());
         return new ModelAndView("error");

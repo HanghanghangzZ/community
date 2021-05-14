@@ -9,8 +9,9 @@
     <script src="/js/bootstrap.min.js"></script>
     <link rel="stylesheet" th:href="@{/css/community.css}" type="text/css">
     <script th:src="@{/js/community.js}"></script>
-    <link rel="stylesheet" href="/editor.md-master/css/editormd.min.css"/>
-    <script src="/editor.md-master/editormd.min.js"></script>
+    <link rel="stylesheet" href="/css/editormd.min.css"/>
+    <script src="/js/editormd.min.js"></script>
+    <link rel="stylesheet" href="/css/footer.css">
 </head>
 <body>
 
@@ -97,5 +98,6 @@
     </div>
 </div>
 
+<div th:insert="~{commons/footer :: footer}"></div>
 </body>
 </html>

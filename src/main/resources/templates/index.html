@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="/css/footer.css">
 </head>
 <!--<script type="application/javascript">-->
 <!--    /* 在评论的时候如果没有登录是不能评论的，这时如果用户评论，那么就会跳出弹窗询问用户是否登录 */-->
@@ -57,25 +58,26 @@
             <nav aria-label="Page navigation">
                 <ul class="pagination">
                     <li th:if="${paginationDTO.showFirstPage}">
-                        <a th:href="@{/(page=1)}" aria-label="Previous">
+                        <a th:href="@{/(page=1), search=${search}}" aria-label="Previous">
                             <span aria-hidden="true">&lt;&lt;</span>
                         </a>
                     </li>
                     <li th:if="${paginationDTO.showPrevious}">
-                        <a th:href="@{/(page=${paginationDTO.page - 1})}" aria-label="Previous">
+                        <a th:href="@{/(page=${paginationDTO.page - 1}, search=${search})}" aria-label="Previous">
                             <span aria-hidden="true">&lt;</span>
                         </a>
                     </li>
                     <li th:each="page : ${paginationDTO.pages}"
-                        th:class="${paginationDTO.page == page} ? 'active' : ''"><a th:href="@{/(page=${page})}"
-                                                                                    th:text="${page}">1</a></li>
+                        th:class="${paginationDTO.page == page} ? 'active' : ''">
+                        <a th:href="@{/(page=${page}, search=${search})}" th:text="${page}">1</a>
+                    </li>
                     <li th:if="${paginationDTO.showNext}">
-                        <a th:href="@{/(page=${paginationDTO.page + 1})}" aria-label="Next">
+                        <a th:href="@{/(page=${paginationDTO.page + 1}, search=${search})}" aria-label="Next">
                             <span aria-hidden="true">&gt;</span>
                         </a>
                     </li>
                     <li th:if="${paginationDTO.showEndPage}">
-                        <a th:href="@{/(page=${paginationDTO.totalPage})}" aria-label="Next">
+                        <a th:href="@{/(page=${paginationDTO.totalPage}, search=${search})}" aria-label="Next">
                             <span aria-hidden="true">&gt;&gt;</span>
                         </a>
                     </li>
@@ -89,5 +91,7 @@
         </div>
     </div>
 </div>
+
+<div th:insert="~{commons/footer :: footer}"></div>
 </body>
 </html>

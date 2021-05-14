@@ -3,7 +3,6 @@ package com.hang.myselfcommunity.util;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.PutObjectResult;
-import com.hang.myselfcommunity.conf.AliyunOSSConfiguration;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -47,9 +46,9 @@ public class AliyunOOSUtil {
         InputStream inputStream = file.getInputStream();
         String fileKey = UUIDName;
 
-        PutObjectResult putObjectResult = ossClient.putObject(AliyunOSSConfiguration.bucketName, fileKey, inputStream);
+        PutObjectResult putObjectResult = ossClient.putObject(AliyunOOSUtil.bucketName, fileKey, inputStream);
         /* 3600l * 1000 * 24 * 365 * 1000 设置url过期时间为1000年 */
-        URL url = ossClient.generatePresignedUrl(AliyunOSSConfiguration.bucketName, UUIDName, new Date(new Date().getTime() + 3600l * 1000 * 24 * 365 * 1000));
+        URL url = ossClient.generatePresignedUrl(AliyunOOSUtil.bucketName, UUIDName, new Date(new Date().getTime() + 3600L * 1000 * 24 * 365 * 1000));
         System.out.println(url);
         System.out.println("Object：" + fileKey + "存入OSS成功。");
 

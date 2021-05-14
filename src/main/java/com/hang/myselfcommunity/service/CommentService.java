@@ -8,6 +8,7 @@ import com.hang.myselfcommunity.exception.CustomizeErrorCode;
 import com.hang.myselfcommunity.exception.CustomizeException;
 import com.hang.myselfcommunity.mapper.*;
 import com.hang.myselfcommunity.model.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class CommentService {
     private QuestionMapper questionMapper;
 
@@ -62,20 +64,23 @@ public class CommentService {
     @Transactional  //为此方法添加事务支持，当它抛出 RuntimeException 或 Error 时就会回滚
     public void insert(Comment comment) {
         if (comment.getParentId() == null || comment.getParentId() == 0) {
+            log.error("CommentService insert TARGET_PARAM_NOT_FOUND, {}", comment);
             throw new CustomizeException(CustomizeErrorCode.TARGET_PARAM_NOT_FOUND);
         }
 
         if (comment.getType() == 0 || !CommentTypeEnum.isExist(comment.getType())) {
+            log.error("CommentService insert TYPE_PARAM_WRONG, {}", comment);
             throw new CustomizeException(CustomizeErrorCode.TYPE_PARAM_WRONG);
         }
-
 
         if (comment.getType() == CommentTypeEnum.COMMENT.getType()) {
             /* 回复评论 */
             Comment dbComment = commentMapper.selectByPrimaryKey(comment.getParentId());
             if (dbComment == null) {
+                log.error("CommentService insert COMMENT_NOT_FOUND");
                 throw new CustomizeException(CustomizeErrorCode.COMMENT_NOT_FOUND);
             }
+
             commentMapper.insert(comment);
             /* 增加评论数 */
             dbComment.setCommentCount(1);
@@ -86,6 +91,7 @@ public class CommentService {
             /* 回答问题 */
             Question dbQuestion = questionMapper.selectByPrimaryKey(comment.getParentId());
             if (dbQuestion == null) {
+                log.error("CommentService insert QUESTION_NOT_FOUND");
                 throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
             }
             commentMapper.insert(comment);
@@ -98,6 +104,10 @@ public class CommentService {
     }
 
     private void createNotification(Comment comment, Long receiver, NotificationTypeEnum notificationTypeEnum) {
+        /* 自己给自己写的评论不用通知 */
+        if (receiver == comment.getCommentator()) {
+            return;
+        }
         Notification notification = new Notification();
         notification.setReceiver(receiver);
         notification.setType(notificationTypeEnum.getType());
@@ -127,7 +137,7 @@ public class CommentService {
                 .andParentIdEqualTo(id)
                 .andTypeEqualTo(type.getType());
         commentExample.setOrderByClause("gmt_create desc");
-        List<Comment> comments = commentMapper.selectByExample(commentExample);
+        List<Comment> comments = commentMapper.selectByExampleWithBLOBs(commentExample);
 
         if (comments.size() == 0) {
             return new ArrayList<>();
@@ -136,14 +146,14 @@ public class CommentService {
         /* map 方法用于映射每个元素到对应的结果,执行comments这个列表中每个元素的getCommentator()方法，并将结果抽取成一个Set */
         /* lambda表达式中的方法如果只有一个参数，而且这个类型的参数可以推导得出，那么可以忽略小括号 */
         /* 如： (Comment comment) -> comment.getCommentator() 可以写成下面这样 */
-        Set<Long> commentators = comments.stream().map(comment -> comment.getCommentator()).collect(Collectors.toSet());
+        Set<Long> commentators = comments.stream().map(Comment::getCommentator).collect(Collectors.toSet());
 
         UserExample userExample = new UserExample();
         userExample.createCriteria()
                 .andIdIn(new ArrayList<>(commentators));
         List<User> users = userMapper.selectByExample(userExample);
         /* 将users这个列表中的元素转换成一个map，其中键为user的id，值为user本身 */
-        Map<Long, User> userMap = users.stream().collect(Collectors.toMap(user -> user.getId(), user -> user));
+        Map<Long, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
 
         /* 将comments列表中的每一个comment元素结合前面获得的发布人Map封装成commentDTO */
         List<CommentDTO> collectDTOs = comments.stream().map(comment -> {

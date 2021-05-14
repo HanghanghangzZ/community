@@ -28,4 +28,24 @@
         WHERE tag REGEXP #{tag}
           AND id != #{id}
     </select>
+    <select id="countBySearch" parameterType="com.hang.myselfcommunity.dto.QuestionQueryDTO" resultType="int">
+        SELECT COUNT(*)
+        FROM question
+        <where>
+            <if test="search != '' and search != null">
+                title REGEXP #{search}
+            </if>
+        </where>
+    </select>
+    <select id="selectPagination" parameterType="com.hang.myselfcommunity.dto.QuestionQueryDTO" resultType="com.hang.myselfcommunity.model.Question">
+        SELECT *
+        FROM question
+        <where>
+            <if test="search != '' and search != null">
+                title REGEXP #{search}
+            </if>
+        </where>
+        ORDER BY gmt_create DESC
+        LIMIT #{page}, #{size}
+    </select>
 </mapper>

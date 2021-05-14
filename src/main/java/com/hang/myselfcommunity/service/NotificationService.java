@@ -11,6 +11,7 @@ import com.hang.myselfcommunity.mapper.NotificationMapper;
 import com.hang.myselfcommunity.mapper.QuestionMapper;
 import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class NotificationService {
 
     private NotificationMapper notificationMapper;
@@ -149,7 +151,7 @@ public class NotificationService {
     public long unreadCount(Long userId) {
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria()
-                .andIdEqualTo(userId)
+                .andReceiverEqualTo(userId)
                 .andStatusEqualTo(NotificationStatusEnum.UNREAD.getStatus());
         return notificationMapper.countByExample(notificationExample);
     }
@@ -164,14 +166,31 @@ public class NotificationService {
     public Notification read(Long id, User user) {
         Notification notification = notificationMapper.selectByPrimaryKey(id);
         if (notification == null) {
+            log.error("NotificationService read NOTIFICATION_NOT_FOUND");
             throw new CustomizeException(CustomizeErrorCode.NOTIFICATION_NOT_FOUND);
         }
         if (notification.getReceiver() != user.getId()) {
+            log.error("NotificationService read READ_NOTIFICATION_FAIL");
             throw new CustomizeException(CustomizeErrorCode.READ_NOTIFICATION_FAIL);
         }
         notification.setStatus(NotificationStatusEnum.READ.getStatus());
         notificationMapper.updateByPrimaryKey(notification);
 
         return notification;
+    }
+
+    /**
+     * 将指定用户的所有通知都标记为已读状态
+     *
+     * @param userId
+     */
+    public void readAll(Long userId) {
+        NotificationExample notificationExample = new NotificationExample();
+        Notification record = new Notification();
+        record.setStatus(1);
+        notificationExample.createCriteria()
+                .andReceiverEqualTo(userId)
+                .andStatusEqualTo(0);
+        notificationMapper.updateByExampleSelective(record, notificationExample);
     }
 }

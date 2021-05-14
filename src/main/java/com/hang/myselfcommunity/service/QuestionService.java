@@ -2,6 +2,7 @@ package com.hang.myselfcommunity.service;
 
 import com.hang.myselfcommunity.dto.PaginationDTO;
 import com.hang.myselfcommunity.dto.QuestionDTO;
+import com.hang.myselfcommunity.dto.QuestionQueryDTO;
 import com.hang.myselfcommunity.exception.CustomizeErrorCode;
 import com.hang.myselfcommunity.exception.CustomizeException;
 import com.hang.myselfcommunity.mapper.QuestionExtMapper;
@@ -11,6 +12,7 @@ import com.hang.myselfcommunity.model.Question;
 import com.hang.myselfcommunity.model.QuestionExample;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.model.UserExample;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class QuestionService {
 
     private QuestionMapper questionMapper;
@@ -47,15 +50,22 @@ public class QuestionService {
     /**
      * 从数据库中获取所有的question并将其封装成供实现分页的PaginationDTO
      *
+     * @param search
      * @param page
      * @param size
      * @return
      */
-    public PaginationDTO<QuestionDTO> list(Integer page, Integer size) {
+    public PaginationDTO<QuestionDTO> list(String search, Integer page, Integer size) {
+        QuestionQueryDTO questionQueryDTO = new QuestionQueryDTO();
+        if (search != null) {
+            search = search.replace(" ", "|");
+            questionQueryDTO.setSearch(search);
+        }
 
         /* 容错 */
         Integer totalPage;
-        Integer totalCount = (int) questionMapper.countByExample(new QuestionExample());
+        Integer totalCount = questionExtMapper.countBySearch(questionQueryDTO);
+
         if (totalCount % size == 0) {
             totalPage = totalCount / size;
         } else {
@@ -68,16 +78,21 @@ public class QuestionService {
         }
 
         int offset = size * (page - 1);
+        questionQueryDTO.setPage(offset);
+        questionQueryDTO.setSize(size);
 
-        /* Mybatis Generator 的方式实现分页 */
+        List<Question> list = questionExtMapper.selectPagination(questionQueryDTO);
 
-        QuestionExample questionExample = new QuestionExample();
-        questionExample.setOrderByClause("gmt_create desc");
-        List<Question> list = questionMapper.selectByExampleWithRowbounds(questionExample, new RowBounds(offset, size));
+        /* 在首页的分页展示中只截取前20个字符 */
+        List<Question> questionList = list.stream().peek(question -> {
+            if (question.getDescription().length() > 20) {
+                question.setDescription(question.getDescription().substring(0, 20));
+            }
+        }).collect(Collectors.toList());
 
         ArrayList<QuestionDTO> questionDTOList = new ArrayList<>();
         PaginationDTO<QuestionDTO> paginationDTO = new PaginationDTO<>();
-        for (Question question : list) {
+        for (Question question : questionList) {
 
             UserExample userExample = new UserExample();
             userExample.createCriteria()
@@ -130,7 +145,7 @@ public class QuestionService {
         QuestionExample questionExample1 = new QuestionExample();
         questionExample1.createCriteria()
                 .andCreatorEqualTo(userId);
-        List<Question> list = questionMapper.selectByExampleWithRowbounds(questionExample1, new RowBounds(offset, size));
+        List<Question> list = questionMapper.selectByExampleWithBLOBsWithRowbounds(questionExample1, new RowBounds(offset, size));
 
         ArrayList<QuestionDTO> questionDTOList = new ArrayList<>();
         PaginationDTO<QuestionDTO> paginationDTO = new PaginationDTO<>();
@@ -166,6 +181,7 @@ public class QuestionService {
 
         Question question = questionMapper.selectByPrimaryKey(id);
         if (question == null) {
+            log.error("QuestionService getById QUESTION_NOT_FOUND");
             throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
         }
 
@@ -211,6 +227,7 @@ public class QuestionService {
                     .andIdEqualTo(question.getId());
             int updated = questionMapper.updateByExampleSelective(updateQuestion, example);
             if (updated != 1) {
+
                 throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
             }
         }
@@ -234,9 +251,7 @@ public class QuestionService {
             return new ArrayList<>();
         }
 
-//        String[] tags = queryDTO.getQuestion().getTag().split(",");
-//        /* 将tags中的字符串之间以 | 为分隔进行拼接 */
-//        String regexpTag = Arrays.stream(tags).collect(Collectors.joining("|"));
+        /* 将tags中的字符串之间以 | 为分隔进行拼接 */
         String regexpTag = queryDTO.getQuestion().getTag().replace(',', '|');
         Question question = new Question();
         question.setTag(regexpTag);

@@ -2,6 +2,7 @@ package com.hang.myselfcommunity.controller;
 
 import com.hang.myselfcommunity.dto.FileDTO;
 import com.hang.myselfcommunity.util.AliyunOOSUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @RestController
+@Slf4j
 public class FileController {
 
     @PostMapping("/upload")
@@ -29,6 +31,7 @@ public class FileController {
         } catch (IOException ioException) {
             ioException.printStackTrace();
             fileDTO.setSuccess(0);
+            log.error("upload failed,{}", fileDTO);
         } finally {
             AliyunOOSUtil.destroy();
         }

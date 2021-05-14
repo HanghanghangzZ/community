@@ -4,6 +4,7 @@ import com.hang.myselfcommunity.mapper.UserMapper;
 import com.hang.myselfcommunity.model.User;
 import com.hang.myselfcommunity.model.UserExample;
 import com.hang.myselfcommunity.service.NotificationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Component
+@Slf4j
 public class SessionInterceptor implements HandlerInterceptor {
 
     private UserMapper userMapper;
@@ -48,9 +50,12 @@ public class SessionInterceptor implements HandlerInterceptor {
                     List<User> users = userMapper.selectByExample(userExample);
                     if (users.size() != 0) {
                         /* 登录成功，保存session */
-                        request.getSession().setAttribute("user", users.get(0));
-                        long unreadCount = notificationService.unreadCount(users.get(0).getId());
+                        User user = users.get(0);
+                        request.getSession().setAttribute("user", user);
+                        long unreadCount = notificationService.unreadCount(user.getId());
                         request.getSession().setAttribute("unreadCount", unreadCount);
+
+                        log.info("user login success, {}", user);
                     }
                     break;
                 }
